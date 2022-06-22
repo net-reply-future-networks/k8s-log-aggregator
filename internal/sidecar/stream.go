@@ -21,10 +21,14 @@ type Stream struct {
 	Logger Logger
 }
 
+func (s *Stream) OpenFile(name string) (*os.File, error) {
+	return os.Open(name)
+}
+
 func (s *Stream) Open(pid Pid, wg *sync.WaitGroup) {
 	defer wg.Done()
 	s.Logger.InfoPID("Stream opening", pid)
-	f, err := os.Open(fmt.Sprintf("/proc/%s/fd/1", pid.Pid))
+	f, err := s.OpenFile(fmt.Sprintf("/proc/%s/fd/1", pid.Pid))
 	if err != nil {
 		s.Logger.ErrorPID(err.Error(), pid)
 		return

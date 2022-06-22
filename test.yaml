@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: test-deployment
+  name: deployment-subject
   labels:
-    app: test-deployment
+    app: deployment-subject
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: test-deployment
+      app: deployment-subject
   template:
     metadata:
       labels:
-        app: test-deployment
+        app: deployment-subject
     spec:
       shareProcessNamespace: true
       containers:
@@ -20,17 +20,86 @@ spec:
           image: jamesmilligan/cricket
           imagePullPolicy: Always
           resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
             limits:
-              memory: "1Gi"
+              memory: "128Mi"
               cpu: "500m"
         - name: sidecar
           image: jamesmilligan/sidecar
           imagePullPolicy: Always
           resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
             limits:
-              memory: "1Gi"
+              memory: "128Mi"
               cpu: "500m"
-
-
-
-          
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nats
+spec:
+  replicas: 1
+  strategy: {}
+  selector:
+    matchLabels:
+      app: nats
+  template:
+    metadata:
+      labels:
+        app: nats
+    spec:
+      containers:
+        - name: nats
+          image: nats:2.7.0-alpine
+          ports:
+            - containerPort: 4222
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nats
+spec:
+  selector:
+    app: nats
+  ports:
+    - port: 4222
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregator
+  labels:
+    app: aggregator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregator
+  template:
+    metadata:
+      labels:
+        app: aggregator
+    spec:
+      shareProcessNamespace: true
+      containers:
+        - name: storage
+          image: jamesmilligan/aggregator
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"

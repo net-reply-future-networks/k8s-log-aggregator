@@ -4,10 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
+	"github.com/net-reply-future-networks/k8s-log-aggregator/internal/utils"
 )
 
 type Logger struct {
-	Container string
+	Container  string
+	NatsClient utils.NatsClient
 }
 
 type Log struct {
@@ -22,6 +25,10 @@ func (l *Logger) Log(log Log) {
 	log.Container = l.Container
 	log.Time = time.Now().Unix()
 	b, err := json.Marshal(log)
+	if err != nil {
+		fmt.Println(err)
+	}
+	err = l.NatsClient.Publish(b)
 	if err != nil {
 		fmt.Println(err)
 	}

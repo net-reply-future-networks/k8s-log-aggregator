@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	sc := new(sidecar.Sidecar)
+	sc := sidecar.NewSidecar()
 
 	sc.Run()
 }

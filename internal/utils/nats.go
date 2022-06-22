@@ -8,6 +8,17 @@ type NatsClient struct {
 	client *nats.Conn
 }
 
+type NatsClientInterface interface {
+	GetInstance() (*nats.Conn, error)
+	Publish(data []byte) error
+	GetSubscription() (*nats.Subscription, chan *nats.Msg, error)
+}
+
+func NewNatsClient() *NatsClient {
+	nc := NatsClient{}
+	return &nc
+}
+
 func (nc *NatsClient) GetInstance() (*nats.Conn, error) {
 	if nc.client == nil {
 		client, err := nats.Connect("nats:4222")

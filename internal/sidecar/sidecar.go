@@ -6,9 +6,9 @@ import (
 )
 
 type Sidecar struct {
-	PidManager    PidManager
-	StreamManager StreamManager
-	Logger        Logger
+	PidManager    PidManagerInterface
+	StreamManager StreamManagerInterface
+	Logger        LoggerInterface
 }
 
 func (s *Sidecar) Run() {

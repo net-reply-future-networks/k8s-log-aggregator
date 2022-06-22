@@ -12,14 +12,25 @@ import (
 type StreamManager struct {
 	Streams []*Stream
 	wg      sync.WaitGroup
-	Logger  Logger
+	Logger  LoggerInterface
+}
+
+type StreamManagerInterface interface {
+	OpenStream(pid Pid)
+	CloseStream(pid Pid) bool
 }
 
 type Stream struct {
 	Pid          Pid
 	CancelStdout chan bool
 	CancelStderr chan bool
-	Logger       Logger
+	Logger       LoggerInterface
+}
+
+type StreamInterface interface {
+	OpenStderr(pid Pid, wg *sync.WaitGroup)
+	OpenStdout(pid Pid, wg *sync.WaitGroup)
+	OpenFile(name string) (*os.File, error)
 }
 
 func (s *Stream) OpenFile(name string) (*os.File, error) {
@@ -91,6 +102,7 @@ func (s *Stream) OpenStderr(pid Pid, wg *sync.WaitGroup) {
 func (sm *StreamManager) OpenStream(pid Pid) {
 	stream := new(Stream)
 	stream.Pid = pid
+	stream.Logger = sm.Logger
 	stream.CancelStdout = make(chan bool, 1)
 	stream.CancelStderr = make(chan bool, 1)
 	sm.wg.Add(2)

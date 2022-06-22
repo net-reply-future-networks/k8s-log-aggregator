@@ -10,7 +10,16 @@ import (
 
 type Logger struct {
 	Container  string
-	NatsClient utils.NatsClient
+	NatsClient utils.NatsClientInterface
+}
+
+type LoggerInterface interface {
+	Log(log Log)
+	Error(log string)
+	ErrorPID(log string, pid Pid)
+	Info(log string)
+	InfoPID(log string, pid Pid)
+	SidecarLog(log string)
 }
 
 type Log struct {

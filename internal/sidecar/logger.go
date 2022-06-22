@@ -3,6 +3,7 @@ package sidecar
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 )
 
 type Logger struct {
@@ -14,10 +15,12 @@ type Log struct {
 	Container string `json:"container"`
 	Log       string `json:"log"`
 	Level     string `json:"level"`
+	Time      int64  `json:"time"`
 }
 
 func (l *Logger) Log(log Log) {
 	log.Container = l.Container
+	log.Time = time.Now().Unix()
 	b, err := json.Marshal(log)
 	if err != nil {
 		fmt.Println(err)

@@ -34,6 +34,7 @@ func (s *Stream) OpenStdout(pid Pid, wg *sync.WaitGroup) {
 		s.Logger.ErrorPID(err.Error(), pid)
 		return
 	}
+	defer f.Close()
 	r := bufio.NewReader(f)
 	for {
 		select {
@@ -64,6 +65,7 @@ func (s *Stream) OpenStderr(pid Pid, wg *sync.WaitGroup) {
 		s.Logger.ErrorPID(err.Error(), pid)
 		return
 	}
+	defer f.Close()
 	r := bufio.NewReader(f)
 	for {
 		select {

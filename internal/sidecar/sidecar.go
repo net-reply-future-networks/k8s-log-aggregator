@@ -28,6 +28,6 @@ func (s *Sidecar) Run() {
 			s.StreamManager.OpenStream(pid)
 		}
 
-		time.Sleep(2 * time.Second)
+		time.Sleep(10 * time.Second)
 	}
 }

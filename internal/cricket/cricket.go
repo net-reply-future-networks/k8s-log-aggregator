@@ -30,12 +30,14 @@ func (c *Cricket) GetRandomString(length int) string {
 }
 
 func main() {
+	go func() {
+		time.Sleep(15 * time.Second)
+		panic("ITS ALL GOING WRONG")
+	}()
 	cricket := Cricket{
 		Interval: 1,
 	}
 	cricket.Chirp()
 
-	time.Sleep(time.Duration(10) * time.Second)
 	cricket.Interupt = true
-	time.Sleep(time.Duration(10) * time.Second)
 }

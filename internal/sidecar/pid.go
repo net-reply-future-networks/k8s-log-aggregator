@@ -30,6 +30,7 @@ func (p Pids) Contains(pid string) bool {
 }
 
 func (p *PidManager) GetPids() (Pids, error) {
+	// p.Logger.SidecarLog("--- polling for processes ---")
 	myPid := fmt.Sprintf("%d", os.Getpid())
 	pids := Pids{}
 	cmd := exec.Command("sh", "-c", `ps -eo pid,comm,ppid | sed 1,1d | awk '{print $1 "," $2 "," $3}' | grep -E -v ',sed,|,ps,|,awk,|,tr,|,sh,|,grep,'`)

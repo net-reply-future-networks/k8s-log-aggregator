@@ -16,18 +16,19 @@ type StreamManager struct {
 }
 
 type Stream struct {
-	Pid    Pid
-	Cancel chan bool
-	Logger Logger
+	Pid          Pid
+	CancelStdout chan bool
+	CancelStderr chan bool
+	Logger       Logger
 }
 
 func (s *Stream) OpenFile(name string) (*os.File, error) {
 	return os.Open(name)
 }
 
-func (s *Stream) Open(pid Pid, wg *sync.WaitGroup) {
+func (s *Stream) OpenStdout(pid Pid, wg *sync.WaitGroup) {
 	defer wg.Done()
-	s.Logger.InfoPID("Stream opening", pid)
+	s.Logger.InfoPID("Stdout stream opening", pid)
 	f, err := s.OpenFile(fmt.Sprintf("/proc/%s/fd/1", pid.Pid))
 	if err != nil {
 		s.Logger.ErrorPID(err.Error(), pid)
@@ -36,13 +37,15 @@ func (s *Stream) Open(pid Pid, wg *sync.WaitGroup) {
 	r := bufio.NewReader(f)
 	for {
 		select {
-		case <-s.Cancel:
-			s.Logger.InfoPID("Stream Closed", pid)
+		case <-s.CancelStdout:
+			s.Logger.InfoPID("Stdout stream Closed", pid)
 			return
 		default:
 			line, err := r.ReadBytes('\n')
 			if err != nil && !errors.Is(err, io.EOF) {
 				s.Logger.ErrorPID(err.Error(), pid)
+				continue
+			} else if err != nil && errors.Is(err, io.EOF) {
 				continue
 			}
 			if len(line) == 0 {
@@ -53,12 +56,44 @@ func (s *Stream) Open(pid Pid, wg *sync.WaitGroup) {
 	}
 }
 
+func (s *Stream) OpenStderr(pid Pid, wg *sync.WaitGroup) {
+	defer wg.Done()
+	s.Logger.InfoPID("Stderr stream opening", pid)
+	f, err := s.OpenFile(fmt.Sprintf("/proc/%s/fd/2", pid.Pid))
+	if err != nil {
+		s.Logger.ErrorPID(err.Error(), pid)
+		return
+	}
+	r := bufio.NewReader(f)
+	for {
+		select {
+		case <-s.CancelStderr:
+			s.Logger.InfoPID("Stderr stream Closed", pid)
+			return
+		default:
+			line, err := r.ReadBytes('\n')
+			if err != nil && !errors.Is(err, io.EOF) {
+				s.Logger.ErrorPID(err.Error(), pid)
+				continue
+			} else if err != nil && errors.Is(err, io.EOF) {
+				continue
+			}
+			if len(line) == 0 {
+				continue
+			}
+			s.Logger.ErrorPID(string(line), pid)
+		}
+	}
+}
+
 func (sm *StreamManager) OpenStream(pid Pid) {
 	stream := new(Stream)
 	stream.Pid = pid
-	stream.Cancel = make(chan bool, 1)
-	sm.wg.Add(1)
-	go stream.Open(pid, &sm.wg)
+	stream.CancelStdout = make(chan bool, 1)
+	stream.CancelStderr = make(chan bool, 1)
+	sm.wg.Add(2)
+	go stream.OpenStdout(pid, &sm.wg)
+	go stream.OpenStderr(pid, &sm.wg)
 	sm.Streams = append(sm.Streams, stream)
 }
 
@@ -66,7 +101,8 @@ func (sm *StreamManager) CloseStream(pid Pid) bool {
 	sm.Logger.InfoPID("Stream Closing", pid)
 	for i, stream := range sm.Streams {
 		if stream.Pid.Pid == pid.Pid {
-			stream.Cancel <- true
+			stream.CancelStdout <- true
+			stream.CancelStderr <- true
 			sm.Streams = append(sm.Streams[:i], sm.Streams[i+1:]...)
 			return true
 		}

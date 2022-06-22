@@ -58,3 +58,7 @@ func (l *Logger) InfoPID(log string, pid Pid) {
 	}
 	l.Log(logF)
 }
+
+func (l *Logger) SidecarLog(log string) {
+	fmt.Println(log)
+}

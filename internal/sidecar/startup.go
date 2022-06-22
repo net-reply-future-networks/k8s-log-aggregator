@@ -15,9 +15,15 @@ func NewSidecar() *Sidecar {
 	return &sc
 }
 
+func NewOsInterface() *Os {
+	os := Os{}
+	return &os
+}
+
 func NewPidManager(lg *Logger) *PidManager {
 	pm := PidManager{
 		Logger: lg,
+		Os:     NewOsInterface(),
 	}
 	return &pm
 }

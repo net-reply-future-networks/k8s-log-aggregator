@@ -9,10 +9,13 @@ import (
 )
 
 type PidManagerMock struct {
-	MockExecPs          MockExecPs
 	MockGetPids         MockGetPids
 	MockConsolidatePids MockConsolidatePids
 	T                   *testing.T
+}
+
+type OsMock struct {
+	MockExecPs *MockExecPs
 }
 
 type MockExecPs struct {
@@ -37,9 +40,9 @@ type MockConsolidatePids struct {
 	ActualInvocations   int
 }
 
-func (p *PidManagerMock) ExecPs() ([]byte, error) {
-	p.MockExecPs.ActualInvocations++
-	return p.MockExecPs.OutBytes, p.MockExecPs.OutErr
+func (o *OsMock) ExecPs() ([]byte, error) {
+	o.MockExecPs.ActualInvocations++
+	return o.MockExecPs.OutBytes, o.MockExecPs.OutErr
 }
 func (p *PidManagerMock) GetPids() (sidecar.Pids, error) {
 	p.MockGetPids.ActualInvocations++

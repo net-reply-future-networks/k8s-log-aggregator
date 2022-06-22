@@ -10,10 +10,10 @@ import (
 type PidManager struct {
 	Pids   Pids
 	Logger LoggerInterface
+	Os     OsInterface
 }
 
 type PidManagerInterface interface {
-	ExecPs() ([]byte, error)
 	GetPids() (Pids, error)
 	ConsolidatePids(pids Pids) (Pids, Pids)
 }
@@ -26,6 +26,12 @@ type Pid struct {
 
 type Pids []Pid
 
+type OsInterface interface {
+	ExecPs() ([]byte, error)
+}
+
+type Os struct{}
+
 func (p Pids) Contains(pid string) bool {
 	for _, x := range p {
 		if x.Pid == pid {
@@ -35,7 +41,7 @@ func (p Pids) Contains(pid string) bool {
 	return false
 }
 
-func (p *PidManager) ExecPs() ([]byte, error) {
+func (o *Os) ExecPs() ([]byte, error) {
 	cmd := exec.Command("sh", "-c", `ps -eo pid,comm,ppid | sed 1,1d | awk '{print $1 "," $2 "," $3}' | grep -E -v ',sed,|,ps,|,awk,|,tr,|,sh,|,grep,'`)
 	return cmd.Output()
 }
@@ -44,11 +50,11 @@ func (p *PidManager) GetPids() (Pids, error) {
 	myPid := fmt.Sprintf("%d", os.Getpid())
 	pids := Pids{}
 
-	out, err := p.ExecPs()
-
+	out, err := p.Os.ExecPs()
 	if err != nil {
 		return pids, err
 	}
+
 	rows := strings.Split(string(out), "\n")
 	for _, x := range rows {
 		split := strings.Split(x, ",")

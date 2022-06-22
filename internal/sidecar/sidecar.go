@@ -1,7 +1,6 @@
 package sidecar
 
 import (
-	"fmt"
 	"log"
 	"time"
 )
@@ -9,6 +8,7 @@ import (
 type Sidecar struct {
 	PidManager    PidManager
 	StreamManager StreamManager
+	Logger        Logger
 }
 
 func (s *Sidecar) Run() {
@@ -21,7 +21,7 @@ func (s *Sidecar) Run() {
 
 		for _, pid := range oldPids {
 			if ok := s.StreamManager.CloseStream(pid); !ok {
-				fmt.Println("Unable to find pid, possible run away go routine", pid)
+				s.Logger.ErrorPID("Unable to find pid, possible run away go routine", pid)
 			}
 		}
 		for _, pid := range newPids {

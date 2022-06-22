@@ -8,13 +8,14 @@ import (
 )
 
 type PidManager struct {
-	Pids Pids
+	Pids   Pids
+	Logger Logger
 }
 
 type Pid struct {
-	Pid  string
-	Ppid string
-	Comm string
+	Pid  string `json:"pid"`
+	Ppid string `json:"ppid"`
+	Comm string `json:"comm"`
 }
 
 type Pids []Pid
@@ -29,7 +30,6 @@ func (p Pids) Contains(pid string) bool {
 }
 
 func (p *PidManager) GetPids() (Pids, error) {
-	fmt.Println("Polling for PIDS")
 	myPid := fmt.Sprintf("%d", os.Getpid())
 	pids := Pids{}
 	cmd := exec.Command("sh", "-c", `ps -eo pid,comm,ppid | sed 1,1d | awk '{print $1 "," $2 "," $3}' | grep -E -v ',sed,|,ps,|,awk,|,tr,|,sh,|,grep,'`)

@@ -12,38 +12,39 @@ import (
 type StreamManager struct {
 	Streams []*Stream
 	wg      sync.WaitGroup
+	Logger  Logger
 }
 
 type Stream struct {
 	Pid    Pid
 	Cancel chan bool
+	Logger Logger
 }
 
 func (s *Stream) Open(pid Pid, wg *sync.WaitGroup) {
 	defer wg.Done()
-	fmt.Printf("--- Stream Opening ---\nPID:  %s\nPPID: %s\nCOMM: %s\n----------------------\n", pid.Pid, pid.Ppid, pid.Comm)
+	s.Logger.InfoPID("Stream opening", pid)
 	f, err := os.Open(fmt.Sprintf("/proc/%s/fd/1", pid.Pid))
 	if err != nil {
-		fmt.Println(err)
+		s.Logger.ErrorPID(err.Error(), pid)
 		return
 	}
 	r := bufio.NewReader(f)
 	for {
 		select {
 		case <-s.Cancel:
-			fmt.Printf("PID %s stream closed\n", pid.Pid)
+			s.Logger.InfoPID("Stream Closed", pid)
 			return
 		default:
 			line, err := r.ReadBytes('\n')
 			if err != nil && !errors.Is(err, io.EOF) {
-				fmt.Printf("pid: %s - err: %s\n", pid.Pid, err.Error())
+				s.Logger.ErrorPID(err.Error(), pid)
 				continue
 			}
 			if len(line) == 0 {
 				continue
 			}
-			fmt.Println(line)
-			fmt.Printf("pid: %s - log: %s\n", pid.Pid, string(line))
+			s.Logger.InfoPID(string(line), pid)
 		}
 	}
 }
@@ -58,7 +59,7 @@ func (sm *StreamManager) OpenStream(pid Pid) {
 }
 
 func (sm *StreamManager) CloseStream(pid Pid) bool {
-	fmt.Println("Closing stream", pid)
+	sm.Logger.InfoPID("Stream Closing", pid)
 	for i, stream := range sm.Streams {
 		if stream.Pid.Pid == pid.Pid {
 			stream.Cancel <- true
@@ -66,6 +67,5 @@ func (sm *StreamManager) CloseStream(pid Pid) bool {
 			return true
 		}
 	}
-	fmt.Println(sm.Streams)
 	return false
 }

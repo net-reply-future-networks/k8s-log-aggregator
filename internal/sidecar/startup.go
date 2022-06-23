@@ -7,6 +7,7 @@ func NewSidecar() *Sidecar {
 	lg := NewLogger(nc)
 	pm := NewPidManager(lg)
 	sm := NewStreamManager(lg)
+
 	sc := Sidecar{
 		PidManager:    pm,
 		StreamManager: sm,
@@ -31,6 +32,7 @@ func NewPidManager(lg *Logger) *PidManager {
 func NewStreamManager(lg *Logger) *StreamManager {
 	sm := StreamManager{
 		Logger: lg,
+		Os:     NewOsInterface(),
 	}
 	return &sm
 }

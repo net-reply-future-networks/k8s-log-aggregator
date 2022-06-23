@@ -17,7 +17,7 @@ spec:
       shareProcessNamespace: true
       containers:
         - name: cricket
-          image: jamesmilligan/cricket
+          image: ghcr.io/net-reply-future-networks/k8s-log-aggregator-cricket:main
           imagePullPolicy: Always
           resources:
             requests:
@@ -27,7 +27,7 @@ spec:
               memory: "128Mi"
               cpu: "500m"
         - name: sidecar
-          image: jamesmilligan/sidecar
+          image:  ghcr.io/net-reply-future-networks/k8s-log-aggregator-sidecar:main
           imagePullPolicy: Always
           resources:
             requests:
@@ -36,6 +36,8 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
+      imagePullSecrets:
+        - name: regcred
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -94,7 +96,7 @@ spec:
       shareProcessNamespace: true
       containers:
         - name: storage
-          image: jamesmilligan/aggregator
+          image:  ghcr.io/net-reply-future-networks/k8s-log-aggregator-aggregator:main
           imagePullPolicy: Always
           resources:
             requests:
@@ -103,3 +105,5 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
+      imagePullSecrets:
+        - name: regcred

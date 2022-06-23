@@ -100,6 +100,7 @@ func (s *Stream) OpenStderr(pid Pid, wg *sync.WaitGroup) {
 func (sm *StreamManager) OpenStream(pid Pid) {
 	stream := new(Stream)
 	stream.Pid = pid
+	stream.Os = sm.Os
 	stream.Logger = sm.Logger
 	stream.CancelStdout = make(chan bool, 1)
 	stream.CancelStderr = make(chan bool, 1)

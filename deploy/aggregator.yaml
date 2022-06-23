@@ -19,6 +19,11 @@ spec:
         - name: aggregator
           image:  ghcr.io/net-reply-future-networks/k8s-log-aggregator-aggregator:main
           imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+          - configMapRef:
+              name: aggregator-config
           resources:
             requests:
               memory: "64Mi"
@@ -26,5 +31,58 @@ spec:
             limits:
               memory: "128Mi"
               cpu: "500m"
+          volumeMounts:
+          - mountPath: "/data"
+            name: db-pv
       imagePullSecrets:
         - name: regcred
+      volumes:
+      - name: db-pv
+        persistentVolumeClaim:
+          claimName: db-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-log-aggregator-aggregator-service
+spec:
+  selector:
+    app: k8s-log-aggregator-aggregator
+  ports:
+  - port: 8080
+    targetPort: 8080
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-pv
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  local:
+    path: /data/volumes/db-pv
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: app
+          operator: In
+          values:
+          - k8s-log-aggregator-aggregator
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi

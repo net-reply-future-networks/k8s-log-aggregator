@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata: 
+  name: aggregator-config
+  namespace: default
+data:
+  MOUNTPATH: /data
+  HEAP_FILE: heap
+  HM_BACKUP: hm.csv

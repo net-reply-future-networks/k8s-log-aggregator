@@ -1,6 +1,10 @@
 package sidecar
 
-import "github.com/net-reply-future-networks/k8s-log-aggregator/internal/utils"
+import (
+	"os"
+
+	"github.com/net-reply-future-networks/k8s-log-aggregator/internal/utils"
+)
 
 func NewSidecar() *Sidecar {
 	nc := utils.NewNatsClient()
@@ -40,6 +44,7 @@ func NewStreamManager(lg *Logger) *StreamManager {
 func NewLogger(nc *utils.NatsClient) *Logger {
 	lg := Logger{
 		NatsClient: nc,
+		Pod:        os.Getenv("POD_NAME"),
 	}
 	return &lg
 }

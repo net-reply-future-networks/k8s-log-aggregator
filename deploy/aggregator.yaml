@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-log-aggregator-aggregator
+  labels:
+    app: k8s-log-aggregator-aggregator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-log-aggregator-aggregator
+  template:
+    metadata:
+      labels:
+        app: k8s-log-aggregator-aggregator
+    spec:
+      shareProcessNamespace: true
+      containers:
+        - name: aggregator
+          image:  ghcr.io/net-reply-future-networks/k8s-log-aggregator-aggregator:main
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+      imagePullSecrets:
+        - name: regcred

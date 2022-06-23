@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-log-aggregator-example-pod
+  labels:
+    app: k8s-log-aggregator-example-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-log-aggregator-example-pod
+  template:
+    metadata:
+      labels:
+        app: k8s-log-aggregator-example-pod
+    spec:
+      shareProcessNamespace: true
+      containers:
+        - name: cricket
+          image: ghcr.io/net-reply-future-networks/k8s-log-aggregator-cricket:main
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+        - name: sidecar
+          image:  ghcr.io/net-reply-future-networks/k8s-log-aggregator-sidecar:main
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+          - name: POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+      imagePullSecrets:
+        - name: regcred

@@ -9,7 +9,7 @@ import (
 )
 
 type Logger struct {
-	Container  string
+	Pod        string
 	NatsClient utils.NatsClientInterface
 }
 
@@ -23,15 +23,15 @@ type LoggerInterface interface {
 }
 
 type Log struct {
-	Process   *Pid   `json:"process,omitempty"`
-	Container string `json:"container"`
-	Log       string `json:"log"`
-	Level     string `json:"level"`
-	Time      int64  `json:"time"`
+	Process *Pid   `json:"process,omitempty"`
+	Pod     string `json:"pod"`
+	Log     string `json:"log"`
+	Level   string `json:"level"`
+	Time    int64  `json:"time"`
 }
 
 func (l *Logger) Log(log Log) {
-	log.Container = l.Container
+	log.Pod = l.Pod
 	log.Time = time.Now().Unix()
 	b, err := json.Marshal(log)
 	if err != nil {

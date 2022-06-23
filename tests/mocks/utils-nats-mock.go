@@ -1,7 +1,6 @@
 package mocks
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/nats-io/nats.go"
@@ -15,7 +14,6 @@ type NatsClientMock struct {
 }
 
 type MockPublish struct {
-	InData              []byte
 	OutError            error
 	ExpectedInvocations int
 	ActualInvocations   int
@@ -32,9 +30,6 @@ func (n *NatsClientMock) GetInstance() (*nats.Conn, error) {
 }
 func (n *NatsClientMock) Publish(data []byte) error {
 	n.MockPublish.ActualInvocations++
-	if string(data) != string(n.MockPublish.InData) {
-		n.T.Error(fmt.Sprintf("(Publish) unexpected input data value, expected %s, got %s", string(n.MockPublish.InData), string(data)))
-	}
 	return n.MockPublish.OutError
 }
 func (n *NatsClientMock) GetSubscription() (*nats.Subscription, chan *nats.Msg, error) {

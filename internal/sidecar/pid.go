@@ -3,7 +3,6 @@ package sidecar
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"strings"
 )
 
@@ -26,12 +25,6 @@ type Pid struct {
 
 type Pids []Pid
 
-type OsInterface interface {
-	ExecPs() ([]byte, error)
-}
-
-type Os struct{}
-
 func (p Pids) Contains(pid string) bool {
 	for _, x := range p {
 		if x.Pid == pid {
@@ -39,11 +32,6 @@ func (p Pids) Contains(pid string) bool {
 		}
 	}
 	return false
-}
-
-func (o *Os) ExecPs() ([]byte, error) {
-	cmd := exec.Command("sh", "-c", `ps -eo pid,comm,ppid | sed 1,1d | awk '{print $1 "," $2 "," $3}' | grep -E -v ',sed,|,ps,|,awk,|,tr,|,sh,|,grep,'`)
-	return cmd.Output()
 }
 
 func (p *PidManager) GetPids() (Pids, error) {

@@ -14,17 +14,6 @@ type PidManagerMock struct {
 	T                   *testing.T
 }
 
-type OsMock struct {
-	MockExecPs *MockExecPs
-}
-
-type MockExecPs struct {
-	OutBytes            []byte
-	OutErr              error
-	ExpectedInvocations int
-	ActualInvocations   int
-}
-
 type MockGetPids struct {
 	OutPids             sidecar.Pids
 	OutError            error
@@ -40,10 +29,6 @@ type MockConsolidatePids struct {
 	ActualInvocations   int
 }
 
-func (o *OsMock) ExecPs() ([]byte, error) {
-	o.MockExecPs.ActualInvocations++
-	return o.MockExecPs.OutBytes, o.MockExecPs.OutErr
-}
 func (p *PidManagerMock) GetPids() (sidecar.Pids, error) {
 	p.MockGetPids.ActualInvocations++
 	return p.MockGetPids.OutPids, p.MockGetPids.OutError

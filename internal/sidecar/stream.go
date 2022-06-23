@@ -13,6 +13,7 @@ type StreamManager struct {
 	Streams []*Stream
 	wg      sync.WaitGroup
 	Logger  LoggerInterface
+	Os      OsInterface
 }
 
 type StreamManagerInterface interface {
@@ -25,6 +26,7 @@ type Stream struct {
 	CancelStdout chan bool
 	CancelStderr chan bool
 	Logger       LoggerInterface
+	Os           OsInterface
 }
 
 type StreamInterface interface {
@@ -33,14 +35,10 @@ type StreamInterface interface {
 	OpenFile(name string) (*os.File, error)
 }
 
-func (s *Stream) OpenFile(name string) (*os.File, error) {
-	return os.Open(name)
-}
-
 func (s *Stream) OpenStdout(pid Pid, wg *sync.WaitGroup) {
 	defer wg.Done()
 	s.Logger.InfoPID("Stdout stream opening", pid)
-	f, err := s.OpenFile(fmt.Sprintf("/proc/%s/fd/1", pid.Pid))
+	f, err := s.Os.OpenFile(fmt.Sprintf("/proc/%s/fd/1", pid.Pid))
 	if err != nil {
 		s.Logger.ErrorPID(err.Error(), pid)
 		return
@@ -50,7 +48,7 @@ func (s *Stream) OpenStdout(pid Pid, wg *sync.WaitGroup) {
 	for {
 		select {
 		case <-s.CancelStdout:
-			s.Logger.InfoPID("Stdout stream Closed", pid)
+			s.Logger.InfoPID("Stdout stream closed", pid)
 			return
 		default:
 			line, err := r.ReadBytes('\n')
@@ -71,7 +69,7 @@ func (s *Stream) OpenStdout(pid Pid, wg *sync.WaitGroup) {
 func (s *Stream) OpenStderr(pid Pid, wg *sync.WaitGroup) {
 	defer wg.Done()
 	s.Logger.InfoPID("Stderr stream opening", pid)
-	f, err := s.OpenFile(fmt.Sprintf("/proc/%s/fd/2", pid.Pid))
+	f, err := s.Os.OpenFile(fmt.Sprintf("/proc/%s/fd/2", pid.Pid))
 	if err != nil {
 		s.Logger.ErrorPID(err.Error(), pid)
 		return
@@ -81,7 +79,7 @@ func (s *Stream) OpenStderr(pid Pid, wg *sync.WaitGroup) {
 	for {
 		select {
 		case <-s.CancelStderr:
-			s.Logger.InfoPID("Stderr stream Closed", pid)
+			s.Logger.InfoPID("Stderr stream closed", pid)
 			return
 		default:
 			line, err := r.ReadBytes('\n')

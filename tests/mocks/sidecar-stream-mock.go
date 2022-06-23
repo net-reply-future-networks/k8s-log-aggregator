@@ -2,7 +2,6 @@ package mocks
 
 import (
 	"fmt"
-	"os"
 	"reflect"
 	"sync"
 	"testing"
@@ -29,14 +28,6 @@ type MockOpenStdout struct {
 	ActualInvocations   int
 }
 
-type MockOpenFile struct {
-	InFileName          string
-	OutFile             *os.File
-	OutError            error
-	ExpectedInvocations int
-	ActualInvocations   int
-}
-
 func (m *MockStream) OpenStderr(pid sidecar.Pid, wg *sync.WaitGroup) {
 	defer wg.Done()
 	m.MockOpenStderr.ActualInvocations++
@@ -50,11 +41,4 @@ func (m *MockStream) OpenStdout(pid sidecar.Pid, wg *sync.WaitGroup) {
 		m.T.Error(fmt.Sprintf("(OpenStdout) unexpected input pid value, expected %v, got %v", m.MockOpenStdout.InPid, pid))
 	}
 	defer wg.Done()
-}
-func (m *MockStream) OpenFile(name string) (*os.File, error) {
-	m.MockOpenFile.ActualInvocations++
-	if m.MockOpenFile.InFileName != name {
-		m.T.Error(fmt.Sprintf("(OpenFile) unexpected input fileName value, expected %s, got %s", m.MockOpenFile.InFileName, name))
-	}
-	return m.MockOpenFile.OutFile, m.MockOpenFile.OutError
 }

@@ -20,6 +20,10 @@ type TestOpenStderr struct {
 }
 
 func Test_OpenStdErr(t *testing.T) {
+	go func() {
+		time.Sleep(5 * time.Second)
+		t.Error("TIMED OUT")
+	}()
 	testTable := []TestOpenStderr{
 		{
 			Pid: sidecar.Pid{

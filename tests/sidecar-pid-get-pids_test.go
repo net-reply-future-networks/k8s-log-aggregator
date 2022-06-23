@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/net-reply-future-networks/k8s-log-aggregator/internal/sidecar"
 	"github.com/net-reply-future-networks/k8s-log-aggregator/tests/mocks"
@@ -18,6 +19,10 @@ type TestGetPidsInput struct {
 }
 
 func Test_GetPids(t *testing.T) {
+	go func() {
+		time.Sleep(5 * time.Second)
+		t.Error("TIMED OUT")
+	}()
 	testTable := []TestGetPidsInput{
 		{
 			Test: "happy path",

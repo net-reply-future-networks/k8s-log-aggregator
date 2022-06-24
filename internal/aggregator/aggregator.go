@@ -30,7 +30,7 @@ func (a *Aggregator) Run() {
 	grpcServer := grpc.NewServer()
 	pb.RegisterLogStreamServer(grpcServer, &a.GrpcServer)
 	fmt.Println("Listening on port 8000")
-	go grpcServer.Serve(lis)
+	grpcServer.Serve(lis)
 	wg.Wait()
 }
 

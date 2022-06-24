@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -27,9 +26,7 @@ func (c *Client) Startup() {
 
 func (c *Client) Stream() {
 	c.Startup()
-	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
-	defer cancel()
-	stream, err := c.client.StreamLogs(ctx, &pb.StreamsRequest{})
+	stream, err := c.client.StreamLogs(context.Background(), &pb.StreamsRequest{})
 	if err != nil {
 		log.Fatalf("client.StreamLog failed: %v", err)
 	}

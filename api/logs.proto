@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option go_package = "./api/logs";
+package logs;
+
+
+service LogStream {
+    rpc StreamLog(StreamRequest) returns (stream Log) {}
+    rpc StreamLogs(StreamsRequest) returns (stream Log) {}
+}
+
+message Log {
+    string pod = 1;
+    string log = 2;
+    string level = 3;
+    int64 time = 4;
+    Process process = 5;
+}
+
+message Process {
+    string pid = 1;
+    string ppid = 2;
+    string comm = 3;
+}
+
+message StreamRequest {
+    string pod = 1;
+}
+
+message StreamsRequest {}

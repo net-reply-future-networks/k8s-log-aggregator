@@ -18,4 +18,5 @@ COPY --from=builder /etc/passwd /etc/passwd
 USER user2
 COPY --from=builder app/cmd/aggregator/aggregator ./
 EXPOSE 8080
+EXPOSE 8000
 ENTRYPOINT [ "./aggregator" ]

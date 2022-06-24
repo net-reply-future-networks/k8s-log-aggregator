@@ -30,10 +30,10 @@ func (c *Cricket) GetRandomString(length int) string {
 }
 
 func main() {
-	go func() {
-		time.Sleep(15 * time.Second)
-		panic("ITS ALL GOING WRONG")
-	}()
+	// go func() {
+	// 	time.Sleep(15 * time.Second)
+	// 	panic("ITS ALL GOING WRONG")
+	// }()
 	cricket := Cricket{
 		Interval: 1,
 	}
